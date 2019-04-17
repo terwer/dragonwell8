@@ -1,23 +1,13 @@
 #!/bin/bash
 # build properties
 JDK_UPDATE_VERSION=202
-DISTRO_NAME=Dragonwell
+DISTRO_NAME=Dragonwell-Terwer
 DISTRO_VERSION=8.0-preview
 
 if [ $# != 1 ]; then
   echo "USAGE: $0 release/debug"
 fi
 
-ps -e | grep docker
-if [ $? -eq 0 ]; then
-    echo "We will build Dragonwell in Docker!"
-    sudo docker pull reg.docker.alibaba-inc.com/ajdk/8-dev.alios5
-    docker run -u admin -i --rm -e BUILD_NUMBER=$BUILD_NUMBER -v `pwd`:`pwd` -w `pwd` \
-               --entrypoint=bash reg.docker.alibaba-inc.com/ajdk/8-dev.alios5 `pwd`/make.sh $1
-    exit $?
-fi
-
-source /vmfarm/tools/env.sh
 LC_ALL=C
 BUILD_MODE=$1
 
@@ -47,15 +37,19 @@ else
   BUILD_INDEX=b$BUILD_NUMBER
 fi
 
-bash ./configure --with-milestone=fcs \
-                 --with-freetype=/vmfarm/tools/freetype/ \
+bash ./configure --with-boot-jdk=/opt/java/jdk1.7.0_80 \
+				 --with-debug-level=slowdebug \
+				 --with-native-debug-symbols=internal \
+				 --with-jvm-variants=server \
+				 --with-target-bits=64 \
+				 --enable-ccache \
+				 --with-num-cores=4 \
+				 --with-memory-size=3000 \
+				 --with-milestone=fcs \
                  --with-update-version=$JDK_UPDATE_VERSION \
                  --with-build-number=$BUILD_INDEX \
                  --with-user-release-suffix="" \
                  --enable-unlimited-crypto \
-                 --with-cacerts-file=/vmfarm/security/cacerts \
-                 --with-jtreg=/vmfarm/tools/jtreg4.1 \
-                 --with-tools-dir=/vmfarm/tools/install/gcc-4.4.7/bin \
                  --with-jvm-variants=server \
                  --with-debug-level=$DEBUG_LEVEL \
                  --with-extra-cflags="-DVENDOR='\"Alibaba\"'                                         \
@@ -65,8 +59,6 @@ bash ./configure --with-milestone=fcs \
                  --with-extra-ldflags="-Wl,--build-id=sha1"
 make clean
 make LOG=debug DISTRO_NAME=$DISTRO_NAME DISTRO_VERSION=$DISTRO_VERSION COMPANY_NAME=Alibaba images
-
-\cp -f /vmfarm/tools/hsdis/8/amd64/hsdis-amd64.so  $NEW_JAVA_HOME/jre/lib/amd64/
 
 # Sanity tests
 JAVA_EXES=("$NEW_JAVA_HOME/bin/java" "$NEW_JAVA_HOME/jre/bin/java" "$NEW_JRE_HOME/bin/java")

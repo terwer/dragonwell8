@@ -36,6 +36,40 @@ https://github.com/alibaba/dragonwell8/releases.
 
 To enable Alibaba Dragonwell JDK for your application, simply set JAVA_HOME to point to the installation directory of Alibaba Dragonwell.
 
+# Get Source and setup env
+
+
+1.download dragonwell8 with
+
+```
+wget https://terwer.oss-cn-qingdao.aliyuncs.com/github/dragonwell8.tar.gz
+```
+
+or
+
+```
+git clone https://github.com/terwer/dragonwell8.git
+cd dragonwell8
+./get_source_terwer.sh
+```
+
+2.download jdk7 and put to `/opt/java/jdk1.7.0_80` as BootJDK
+
+```
+wget https://terwer.oss-cn-qingdao.aliyuncs.com/soft/jdk/jdk-7u80-linux-x64.tar.gz
+```
+
+3.Install fedora 29
+
+http://www.terwergreen.com/post-dark/7871.html
+
+
+# Build your Own JDK
+
+```
+sudo ./make.sh
+``
+
 # Acknowledgement
 
 Special thanks to those who have made contributions to Alibaba's internal JDK builds.
